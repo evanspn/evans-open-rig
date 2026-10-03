@@ -4,7 +4,7 @@ My [OpenRig](https://www.openrig.dev) development setup: rig spec templates, age
 
 ## Design paradigm
 
-This rig follows the design thinking from the OpenRig creator's talk on agent populations ("agents are forming civilizations"; link/title: _TODO: add video URL_). The core idea: a fleet of agents behaves like a civilization, so its failures look like human coordination failures, and the fixes are borrowed from how humans solved them.
+This rig follows the design thinking from the OpenRig creator's talk on agent populations ("agents are forming civilizations"; [watch on YouTube](https://www.youtube.com/watch?v=AL-PQuB2wy0)). The core idea: a fleet of agents behaves like a civilization, so its failures look like human coordination failures, and the fixes are borrowed from how humans solved them.
 
 **Structure**
 - **Seat:** a chair with an address (`builder@workshop`). The agent sits in it; the seat holds a stable role/config, a stable address, and wisdom inherited by future occupants.
