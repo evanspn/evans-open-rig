@@ -1,0 +1,58 @@
+version: "0.2"
+name: workshop
+summary: >
+  The video's tiny example: an orchestration pod with one orchestrator, and an
+  implementation pod with a builder and QA. Work flows orchestrator -> builder -> QA.
+
+culture_file: CULTURE.md
+
+pods:
+  - id: orchestration
+    label: Orchestration
+    members:
+      - id: orchestrator
+        agent_ref: "local:${OPENRIG_AGENTS}/orchestration/orchestrator"
+        runtime: claude-code
+        profile: default
+        cwd: "."
+    edges: []
+
+  - id: implementation
+    label: Implementation
+    members:
+      - id: builder
+        agent_ref: "local:${OPENRIG_AGENTS}/development/implementer"
+        runtime: claude-code
+        profile: default
+        cwd: "."
+      - id: qa
+        agent_ref: "local:${OPENRIG_AGENTS}/development/qa"
+        runtime: claude-code
+        profile: default
+        cwd: "."
+    edges:
+      - kind: delegates_to
+        from: builder
+        to: qa
+
+  - id: delivery
+    label: Delivery
+    members:
+      - id: pr-watcher
+        agent_ref: "local:agents/pr-watcher"
+        runtime: claude-code
+        model: claude-haiku-4-5-20251001
+        profile: default
+        cwd: "."
+    edges: []
+
+edges:
+  - kind: delegates_to
+    from: implementation.qa
+    to: delivery.pr-watcher
+  - kind: delegates_to
+    from: delivery.pr-watcher
+    to: implementation.builder
+  - kind: delegates_to
+    from: orchestration.orchestrator
+    to: implementation.builder

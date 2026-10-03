@@ -1,0 +1,23 @@
+version: "0.2"
+name: oversight
+summary: >
+  A standing monitor for other rigs. One cheap-model seat that watches for
+  loops, drift and token burn, nudges the owning orchestrator, and escalates to
+  the human. Run one oversight rig for all your project rigs.
+
+culture_file: CULTURE.md
+
+pods:
+  - id: oversight
+    label: Oversight
+    members:
+      - id: monitor
+        agent_ref: "local:agents/monitor"
+        runtime: claude-code
+        model: claude-haiku-4-5-20251001
+        profile: default
+        cwd: "."
+    edges: []
+
+edges: []
+permission_policy: builtin:yolo

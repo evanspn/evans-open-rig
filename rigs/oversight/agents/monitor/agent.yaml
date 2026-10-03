@@ -1,0 +1,40 @@
+name: monitor
+version: "1.0"
+description: Oversight monitor - watches other rigs for loops, drift and token burn; nudges lightly, escalates to the human
+
+defaults:
+  runtime: claude-code
+  model: claude-haiku-4-5-20251001
+
+imports:
+  - ref: local:../../../../../../../opt/homebrew/lib/node_modules/@openrig/cli/daemon/specs/agents/shared
+
+profiles:
+  default:
+    uses:
+      skills: [oversight-team, watchdog, human-in-the-loop, messaging-the-human]
+      guidance: []
+      subagents: []
+      plugins: [shared:openrig-core]
+      runtime_resources: [shared:claude-default-settings, shared:claude-default-mcp, shared:claude-activity-hooks]
+
+resources:
+  skills:
+    - id: oversight-team
+      path: skills/oversight-team
+    - id: watchdog
+      path: skills/watchdog
+    - id: human-in-the-loop
+      path: skills/human-in-the-loop
+    - id: messaging-the-human
+      path: skills/messaging-the-human
+  guidance:
+    - id: role
+      path: guidance/role.md
+
+startup:
+  files:
+    - path: guidance/role.md
+      delivery_hint: send_text
+      required: true
+  actions: []
