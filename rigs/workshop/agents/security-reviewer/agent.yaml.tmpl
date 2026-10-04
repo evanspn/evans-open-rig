@@ -1,0 +1,39 @@
+# settings-role: review
+# Template: scripts/install.sh fills in the relative path to the agents shipped with your OpenRig install (it differs per
+# machine) and composes runtime/claude-settings.fragment.json from policies/claude/rules.json for the role named above.
+name: security-reviewer
+version: "1.0"
+description: Security reviewer - consulted on designs and diffs that cross a trust boundary; returns findings and a verdict, never ships code
+
+defaults:
+  runtime: claude-code
+  model: claude-opus-5-5
+
+imports:
+  - ref: local:${OPENRIG_SHARED}
+
+profiles:
+  default:
+    uses:
+      skills: [verification-before-completion]
+      guidance: []
+      subagents: []
+      plugins: [shared:openrig-core]
+      runtime_resources: [guard, shared:claude-activity-hooks]
+
+resources:
+  guidance:
+    - id: role
+      path: guidance/role.md
+  runtime_resources:
+    - id: guard
+      path: runtime/claude-settings.fragment.json
+      runtime: claude-code
+      type: claude_settings_fragment
+
+startup:
+  files:
+    - path: guidance/role.md
+      delivery_hint: send_text
+      required: true
+  actions: []

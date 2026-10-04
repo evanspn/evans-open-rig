@@ -1,10 +1,16 @@
 version: "0.2"
 name: workshop
 summary: >
-  The video's tiny example: an orchestration pod with one orchestrator, and an
-  implementation pod with a builder and QA. Work flows orchestrator -> builder -> QA.
+  A small team: an orchestration pod with one orchestrator, an implementation pod
+  with a builder and QA, a delivery pod with a PR watcher, and a security pod with
+  a consulted reviewer. Work flows orchestrator -> builder -> QA -> PR watcher;
+  the security reviewer is consulted on trust-boundary changes.
 
 culture_file: CULTURE.md
+
+# Rendered by scripts/install.sh. ${RIG_POLICY} is builtin:standard by default (builtin:open with --posture permissive).
+# builtin:yolo (launch posture full_bypass) is never installed by this template; see SECURITY.md before choosing it.
+permission_policy: ${RIG_POLICY}
 
 pods:
   - id: orchestration
@@ -26,7 +32,7 @@ pods:
         profile: default
         cwd: "."
       - id: qa
-        agent_ref: "local:${OPENRIG_AGENTS}/development/qa"
+        agent_ref: "local:agents/qa"
         runtime: claude-code
         profile: default
         cwd: "."
@@ -44,15 +50,36 @@ pods:
         model: claude-haiku-4-5-20251001
         profile: default
         cwd: "."
+        # read PRs and merge finished ones; the settings fragment makes it read-only otherwise
+        permission_policy: builtin:locked
+    edges: []
+
+  - id: security
+    label: Security
+    members:
+      - id: reviewer
+        agent_ref: "local:agents/security-reviewer"
+        runtime: claude-code
+        model: claude-opus-5-5
+        profile: default
+        cwd: "."
+        # consulted, never ships code: read-only
+        permission_policy: builtin:locked
     edges: []
 
 edges:
   - kind: delegates_to
     from: implementation.qa
     to: delivery.pr-watcher
-  - kind: delegates_to
+  - kind: can_observe
     from: delivery.pr-watcher
     to: implementation.builder
   - kind: delegates_to
     from: orchestration.orchestrator
     to: implementation.builder
+  - kind: delegates_to
+    from: orchestration.orchestrator
+    to: security.reviewer
+  - kind: delegates_to
+    from: implementation.builder
+    to: security.reviewer

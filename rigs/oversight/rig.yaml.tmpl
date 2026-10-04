@@ -7,6 +7,9 @@ summary: >
 
 culture_file: CULTURE.md
 
+# Rendered by scripts/install.sh. The monitor only reads rig state and sends messages, so it is locked down.
+permission_policy: builtin:locked
+
 pods:
   - id: oversight
     label: Oversight
@@ -20,4 +23,3 @@ pods:
     edges: []
 
 edges: []
-permission_policy: builtin:yolo

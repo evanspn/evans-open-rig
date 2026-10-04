@@ -1,0 +1,43 @@
+# secrets and credentials: never commit these
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.keystore
+id_rsa*
+id_ed25519*
+*.token
+credentials*
+secrets.*
+.netrc
+.npmrc
+.pypirc
+
+# images and recordings: screenshots and wallpapers carry personal data
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webp
+*.heic
+*.avif
+*.bmp
+*.tiff
+*.mov
+*.mp4
+
+# local agent state: generated per project, may contain transcripts and paths
+.claude/settings.local.json
+.claude/projects/
+.openrig/
+.mcp.json
+CLAUDE.local.md
+*.log
+
+# editors and OS
+.DS_Store
+.idea/
+.vscode/

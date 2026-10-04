@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# Block a push that would publish secrets or personal data. Enable once per clone:
+#   git config core.hooksPath scripts/hooks
+# Bypass in an emergency with `git push --no-verify` (and tell the operator).
+exec "$(git rev-parse --show-toplevel)/scripts/scan-secrets.sh"

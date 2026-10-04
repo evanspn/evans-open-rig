@@ -1,3 +1,6 @@
+# settings-role: monitor
+# Template: scripts/install.sh fills in the relative path to the agents shipped with your OpenRig install (it differs per
+# machine) and composes runtime/claude-settings.fragment.json from policies/claude/rules.json for the role named above.
 name: monitor
 version: "1.0"
 description: Oversight monitor - watches other rigs for loops, drift and token burn; nudges lightly, escalates to the human
@@ -7,7 +10,7 @@ defaults:
   model: claude-haiku-4-5-20251001
 
 imports:
-  - ref: local:../../../../../../../opt/homebrew/lib/node_modules/@openrig/cli/daemon/specs/agents/shared
+  - ref: local:${OPENRIG_SHARED}
 
 profiles:
   default:
@@ -16,7 +19,7 @@ profiles:
       guidance: []
       subagents: []
       plugins: [shared:openrig-core]
-      runtime_resources: [shared:claude-default-settings, shared:claude-default-mcp, shared:claude-activity-hooks]
+      runtime_resources: [guard, shared:claude-activity-hooks]
 
 resources:
   skills:
@@ -31,6 +34,11 @@ resources:
   guidance:
     - id: role
       path: guidance/role.md
+  runtime_resources:
+    - id: guard
+      path: runtime/claude-settings.fragment.json
+      runtime: claude-code
+      type: claude_settings_fragment
 
 startup:
   files:

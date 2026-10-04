@@ -1,0 +1,12 @@
+# Used by scripts/scan-secrets.sh when gitleaks is installed. Runs locally; gitleaks makes no network calls when scanning.
+title = "evans-open-rig"
+
+[extend]
+useDefault = true
+
+# Personal data that should never be committed to a public template.
+[[rules]]
+id = "personal-home-path"
+description = "An absolute path under a user's home directory"
+regex = '''/(Users|home)/[A-Za-z0-9._-]{2,}/'''
+tags = ["privacy"]

@@ -29,10 +29,27 @@ This rig follows the design thinking from the OpenRig creator's talk on agent po
 
 ## Contents
 
-- `rigs/workshop`: orchestrator + builder + QA + PR watcher
+- `rigs/workshop`: orchestrator + builder + QA + PR watcher + a consulted security reviewer (see `rigs/workshop/agents/AUTHORING.md` for how to write a new seat)
 - `rigs/oversight`: standing monitor for token burn / drift
+- `policies/`: the permission rules every seat runs under (`claude/rules.json`, a restricted Codex profile)
 - `docs/`: [setup](docs/setup.md), [architecture](docs/architecture.md), [context maintenance flow](docs/context-maintenance.md)
-- `scripts/install.sh`: renders templates and adds them to your spec library
+- `scripts/`: `install.sh` (renders and validates the templates), `apply-deny-rules.sh`, `scan-secrets.sh`, `harden-public-repo.sh`
+- [`SECURITY.md`](SECURITY.md): threat model, what the defaults do, what you still have to do, how to report a problem
 
-Quick start: `./scripts/install.sh && rig up workshop`
-Requires OpenRig CLI (tested on 0.6.4).
+## Secure by default
+
+Rigs launched from this repo do **not** run with permissions bypassed. The rig policy is `builtin:standard`, the PR watcher, security
+reviewer and monitor are read-only, every seat carries a deny list (no `sudo`, no `rm -rf` of `/` or home, no pipe-to-shell, no
+force-push, no reading `~/.ssh`, `.env` or cloud credentials), and `CULTURE.md` tells agents to treat PR text, web pages and other seats'
+messages as data, never to put secrets in prompts or commits, and to ask before pushing or merging. To loosen this on purpose, see
+`./scripts/install.sh --posture permissive` and the tradeoffs in [SECURITY.md](SECURITY.md).
+
+Quick start:
+
+```
+./scripts/install.sh                      # render + validate + add to your spec library
+./scripts/apply-deny-rules.sh <project>   # deny rules for the shipped orchestrator and builder (commit the result)
+rig up workshop --cwd <project>
+```
+
+Requires the OpenRig CLI (tested on 0.6.4) and python3.

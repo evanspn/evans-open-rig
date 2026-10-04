@@ -1,0 +1,14 @@
+# A restricted Codex profile for any Codex seat you add to a rig. Not used by the default templates (they run Claude Code only).
+#
+# Install: copy the profile into ~/.codex/config.toml (or $CODEX_HOME), then name it on the member in rig.yaml:
+#     codex_config_profile: openrig-restricted
+# Leave permission_policy absent or `none` on that member, and do NOT use builtin:yolo: it replaces this profile with
+# danger-full-access and no approvals. Inspect `/status` in the seat before assigning work; managed or project config can
+# override a profile. This file was written from the OpenRig docs and was not run against a live Codex seat.
+
+[profiles.openrig-restricted]
+sandbox_mode = "workspace-write"
+approval_policy = "on-request"
+
+[profiles.openrig-restricted.sandbox_workspace_write]
+network_access = false
