@@ -2,7 +2,10 @@
 """Compose a Claude Code settings fragment from policies/claude/rules.json.
 
   compose-settings.py ROLE [standard|permissive]        print the fragment as JSON
-  compose-settings.py --merge-into FILE ROLE [POSTURE]  merge it into an existing settings file (idempotent)
+  compose-settings.py --merge-into FILE ROLE [POSTURE] [--replace]
+                                                        merge it into an existing settings file (idempotent);
+                                                        --replace first drops every rule this template could have added
+                                                        (so switching permissive -> standard really narrows), keeping yours
 
 ROLE is one of dev, review, watch, monitor. The fragment always carries the full deny list.
 Permissive only widens what a *builder* may do without a prompt; read-only roles never widen.
@@ -29,9 +32,21 @@ def compose(role, posture):
     return {"permissions": {"defaultMode": r["defaultMode"], "allow": allow, "deny": deny}}
 
 
-def merge(target, frag):
+def ours():
+    """Every allow and deny rule this template can generate, for --replace."""
+    rules = json.load(open(RULES))
+    allow = {a for r in rules["roles"].values() for lst in r["allow"].values() for a in lst}
+    deny = set(rules["deny"]) | {x for r in rules["roles"].values() for x in r["extra_deny"]}
+    return allow, deny
+
+
+def merge(target, frag, replace=False):
     cur = json.load(open(target)) if os.path.exists(target) else {}
     perms = cur.setdefault("permissions", {})
+    if replace:
+        a, d = ours()
+        perms["allow"] = [x for x in perms.get("allow", []) if x not in a]
+        perms["deny"] = [x for x in perms.get("deny", []) if x not in d]
     for key in ("allow", "deny"):
         have = perms.setdefault(key, [])
         for rule in frag["permissions"][key]:
@@ -43,9 +58,11 @@ def merge(target, frag):
 
 def main(argv):
     if len(argv) >= 3 and argv[0] == "--merge-into":
+        replace = "--replace" in argv
+        argv = [a for a in argv if a != "--replace"]
         target, role = argv[1], argv[2]
         posture = argv[3] if len(argv) > 3 else "standard"
-        out = merge(target, compose(role, posture))
+        out = merge(target, compose(role, posture), replace)
         os.makedirs(os.path.dirname(os.path.abspath(target)), exist_ok=True)
         text = json.dumps(out, indent=2) + "\n"
         if not os.path.exists(target) or open(target).read() != text:

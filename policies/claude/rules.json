@@ -83,13 +83,25 @@
   "Edit(~/.bash_profile)",
   "Edit(~/.profile)",
   "Edit(~/Library/LaunchAgents/**)",
-  "Edit(~/.claude/settings.json)",
   "Edit(//etc/**)",
   "Edit(//usr/**)",
   "Edit(//System/**)",
   "Edit(//Library/**)",
   "Edit(//private/etc/**)",
-  "Edit(.git/hooks/**)"
+  "Edit(.git/hooks/**)",
+  "Bash(git diff --no-index:*)",
+  "Bash(git diff * --no-index:*)",
+  "Bash(git * --output*)",
+  "Bash(git * --ext-diff*)",
+  "Bash(git * --textconv*)",
+  "Bash(rig queue resolve:*)",
+  "Edit(.claude/**)",
+  "Edit(~/.claude/**)",
+  "Edit(.mcp.json)",
+  "Edit(.git/**)",
+  "Edit(~/.openrig/**)",
+  "Edit(**/CULTURE.md)",
+  "Edit(scripts/hooks/**)"
  ],
  "roles": {
   "dev": {
@@ -186,11 +198,26 @@
     "NotebookEdit",
     "Bash(git push:*)",
     "Bash(git commit:*)",
-    "Bash(gh pr create:*)"
+    "Bash(gh pr create:*)",
+    "Bash(npm run:*)",
+    "Bash(npm test:*)",
+    "Bash(npm install:*)",
+    "Bash(cargo build:*)",
+    "Bash(cargo test:*)",
+    "Bash(cargo check:*)",
+    "Bash(cargo clippy:*)",
+    "Bash(cargo fmt:*)",
+    "Bash(pytest:*)",
+    "Bash(python3 -m pytest:*)",
+    "Bash(git add:*)",
+    "Bash(git checkout:*)",
+    "Bash(git switch:*)",
+    "Bash(git branch:*)",
+    "Bash(git stash:*)"
    ]
   },
   "watch": {
-   "summary": "the PR watcher: read PR state and CI, merge a finished PR, nothing else",
+   "summary": "the PR watcher: read PR state and CI; merging a finished PR asks in the standard posture and is allowed in permissive; nothing else",
    "defaultMode": "default",
    "allow": {
     "standard": [
@@ -208,7 +235,6 @@
      "Bash(gh pr view:*)",
      "Bash(gh pr checks:*)",
      "Bash(gh pr diff:*)",
-     "Bash(gh pr merge:*)",
      "Bash(gh run view:*)"
     ],
     "permissive": [
@@ -226,8 +252,8 @@
      "Bash(gh pr view:*)",
      "Bash(gh pr checks:*)",
      "Bash(gh pr diff:*)",
-     "Bash(gh pr merge:*)",
-     "Bash(gh run view:*)"
+     "Bash(gh run view:*)",
+     "Bash(gh pr merge:*)"
     ]
    },
    "extra_deny": [
@@ -238,7 +264,22 @@
     "Bash(git commit:*)",
     "Bash(gh pr create:*)",
     "Bash(gh pr close:*)",
-    "Bash(gh api:*)"
+    "Bash(gh api:*)",
+    "Bash(npm run:*)",
+    "Bash(npm test:*)",
+    "Bash(npm install:*)",
+    "Bash(cargo build:*)",
+    "Bash(cargo test:*)",
+    "Bash(cargo check:*)",
+    "Bash(cargo clippy:*)",
+    "Bash(cargo fmt:*)",
+    "Bash(pytest:*)",
+    "Bash(python3 -m pytest:*)",
+    "Bash(git add:*)",
+    "Bash(git checkout:*)",
+    "Bash(git switch:*)",
+    "Bash(git branch:*)",
+    "Bash(git stash:*)"
    ]
   },
   "monitor": {
@@ -269,7 +310,22 @@
     "Bash(git push:*)",
     "Bash(git commit:*)",
     "Bash(gh pr create:*)",
-    "Bash(gh:*)"
+    "Bash(gh:*)",
+    "Bash(npm run:*)",
+    "Bash(npm test:*)",
+    "Bash(npm install:*)",
+    "Bash(cargo build:*)",
+    "Bash(cargo test:*)",
+    "Bash(cargo check:*)",
+    "Bash(cargo clippy:*)",
+    "Bash(cargo fmt:*)",
+    "Bash(pytest:*)",
+    "Bash(python3 -m pytest:*)",
+    "Bash(git add:*)",
+    "Bash(git checkout:*)",
+    "Bash(git switch:*)",
+    "Bash(git branch:*)",
+    "Bash(git stash:*)"
    ]
   }
  }

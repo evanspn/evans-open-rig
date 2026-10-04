@@ -45,7 +45,15 @@ render() {
   dir="$(cd "$(dirname "$out")" && pwd -P)"
   agents="$(relpath "$(cd "$AGENTS_DIR" && pwd -P)" "$dir")"
   shared="$agents/shared"
-  sed -e "s#\${OPENRIG_AGENTS}#$agents#g" -e "s#\${OPENRIG_SHARED}#$shared#g" -e "s#\${RIG_POLICY}#$RIG_POLICY#g" "$src" > "$out"
+  # python, not sed: a path containing # or & must not corrupt the render
+  python3 - "$src" "$out" "$agents" "$shared" "$RIG_POLICY" <<'PY'
+import sys
+src, out, agents, shared, policy = sys.argv[1:6]
+text = open(src).read()
+for key, val in (("${OPENRIG_AGENTS}", agents), ("${OPENRIG_SHARED}", shared), ("${RIG_POLICY}", policy)):
+    text = text.replace(key, val)
+open(out, "w").write(text)
+PY
 }
 
 for rig in workshop oversight; do
@@ -56,7 +64,9 @@ for rig in workshop oversight; do
     backup="$DEST/.backups/$rig.$(date +%Y%m%d%H%M%S)"
     mkdir -p "$DEST/.backups" && cp -R "$out" "$backup" && echo "backed up the existing $rig spec to $backup"
   fi
-  mkdir -p "$out"
+  # start from a clean directory so files from an older install that the template no longer has do not linger
+  # (the backup above keeps anything you added by hand)
+  rm -rf "${out:?}" && mkdir -p "$out"
   # copy everything that is not a template
   (cd "$src" && find . -type f ! -name '*.tmpl' -print) | while read -r f; do
     mkdir -p "$out/$(dirname "$f")"

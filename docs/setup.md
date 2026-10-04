@@ -11,8 +11,8 @@
 3. Apply the deny rules to the project the rig will work in (the orchestrator and builder ship with OpenRig and cannot carry them):
    `./scripts/apply-deny-rules.sh <project>` and commit `<project>/.claude/settings.json`. Add `--dry-run` to preview.
 4. Launch: `rig up workshop --cwd <project>` (and `rig up oversight`). Check with `rig ps` and `rig policy current --spec ~/.openrig/specs/workshop/rig.yaml`.
-5. Confirm enforcement: in a seat run `/permissions`, then try a harmless denied command such as `cat ~/.ssh/config`; it must be refused.
-6. Optional: `git config core.hooksPath scripts/hooks` so every push runs `scripts/scan-secrets.sh`.
+5. Confirm enforcement: in a seat run `/permissions`, then try harmless denied commands such as `cat ~/.ssh/config` and `git diff --no-index /dev/null ~/.ssh/config`; both must be refused or prompt.
+6. Optional: `git config core.hooksPath scripts/hooks` (or copy `scripts/hooks/pre-push` into `.git/hooks/`) so every push runs `scripts/scan-secrets.sh`. Install gitleaks too for the fuller ruleset.
 
 Customize: edit `rigs/<rig>/rig.yaml.tmpl`, `CULTURE.md`, `agents/*/guidance/role.md`, or `policies/claude/rules.json`, then re-run the installer.
 Spec format reference: `rig specs preview workshop` and `rig requirements <spec>`.

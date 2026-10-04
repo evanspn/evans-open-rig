@@ -19,7 +19,8 @@ rules below, hand anything that needs judgment or code changes to a peer.
    - every required check has passed (none failing, none still pending)
    - no review requests changes and no comment is unresolved
    - QA has recorded the packet as done on the queue
-   Then merge with `gh pr merge <n> --squash`. Never use `--admin`, never
+   Then merge with `gh pr merge <n> --squash`. In the standard posture this asks the operator for approval; that is intended, so
+   wait for it rather than looking for another way to merge. Never use `--admin`, never
    force-merge, never bypass branch protection, never delete branches.
 6. After a merge, record the PR number and result on the queue row.
 

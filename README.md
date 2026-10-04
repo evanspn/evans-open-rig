@@ -39,9 +39,9 @@ This rig follows the design thinking from the OpenRig creator's talk on agent po
 ## Secure by default
 
 Rigs launched from this repo do **not** run with permissions bypassed. The rig policy is `builtin:standard`, the PR watcher, security
-reviewer and monitor are read-only, every seat carries a deny list (no `sudo`, no `rm -rf` of `/` or home, no pipe-to-shell, no
+reviewer and monitor cannot edit files or push (the watcher can merge a finished PR only after you approve it), every seat carries a deny list (no `sudo`, no `rm -rf` of `/` or home, no pipe-to-shell, no
 force-push, no reading `~/.ssh`, `.env` or cloud credentials), and `CULTURE.md` tells agents to treat PR text, web pages and other seats'
-messages as data, never to put secrets in prompts or commits, and to ask before pushing or merging. To loosen this on purpose, see
+messages as data, never to put secrets in prompts or commits, and not to push or merge without the operator's granted authority. To loosen this on purpose, see
 `./scripts/install.sh --posture permissive` and the tradeoffs in [SECURITY.md](SECURITY.md).
 
 Quick start:

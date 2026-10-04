@@ -23,12 +23,28 @@ if command -v gitleaks >/dev/null 2>&1; then
     gitleaks detect --source . --config .gitleaks.toml --redact --no-banner --no-git || status=1
   fi
 else
-  echo "== gitleaks not installed: using the built-in scanner only (brew install gitleaks for the fuller ruleset)"
+  echo "WARNING: gitleaks is not installed. Only the built-in scanner runs: a narrow set of credential patterns with no generic or" >&2
+  echo "         high-entropy detection, so a passing result is weaker evidence. Install gitleaks (brew install gitleaks) and re-run." >&2
 fi
 
 echo "== built-in scan: credentials and personal data in all history and the tree"
-revs="$(git rev-list --all 2>/dev/null)"
-[ -n "$revs" ] || revs="HEAD"
+revfile="$(mktemp)"; trap 'rm -f "$revfile" "$revfile".*' EXIT
+git rev-list --all > "$revfile" 2>/dev/null || { echo "SCAN ERROR: git rev-list failed" >&2; exit 2; }
+[ -s "$revfile" ] || echo HEAD > "$revfile"
+split -l 200 "$revfile" "$revfile."   # batches keep the argument list far below the OS limit
+# git grep exits 0 (match), 1 (no match) or >1 (error). An error must never read as "clean".
+grep_history() {
+  local re="$1" batch out rc
+  for batch in "$revfile".??; do
+    out="$(git grep -I -n -E -e "$re" $(cat "$batch") -- 2>&1)"; rc=$?
+    if [ "$rc" -gt 1 ]; then echo "SCAN ERROR: git grep failed (exit $rc): $(printf '%s' "$out" | head -1 | cut -c1-120)" >&2; exit 2; fi
+    [ "$rc" = 0 ] && printf '%s\n' "$out"
+  done
+  out="$(git grep -I -n -E -e "$re" --untracked -- 2>&1)"; rc=$?
+  if [ "$rc" -gt 1 ]; then echo "SCAN ERROR: git grep (tree) failed (exit $rc)" >&2; exit 2; fi
+  [ "$rc" = 0 ] && printf '%s\n' "$out"
+  return 0
+}
 # label|extended regex
 patterns=(
   "private key|-----BEGIN [A-Z ]*PRIVATE KEY-----"
@@ -51,7 +67,7 @@ locate() { awk -F: '{ if ($1 ~ /^[0-9a-f]{40}$/) print substr($1,1,8) ":" $2 ":"
 for entry in "${patterns[@]}"; do
   label="${entry%%|*}"; re="${entry#*|}"
   # history: every blob on every ref; tree: tracked and untracked-not-ignored files
-  hits="$( { git grep -I -n -E -e "$re" $revs -- 2>/dev/null; git grep -I -n -E -e "$re" --untracked -- 2>/dev/null; } | sort -u )"
+  hits="$(grep_history "$re" | sort -u)"; [ "${PIPESTATUS[0]}" = 0 ] || exit 2
   if [ "$label" = "email address" ]; then
     hits="$(printf '%s\n' "$hits" | grep -v -E "$allow_email" || true)"
   fi
@@ -66,7 +82,7 @@ for entry in "${patterns[@]}"; do
 done
 
 echo "== built-in scan: file names that should not be in a public repo"
-bad="$(git log --all --name-only --format= 2>/dev/null | sort -u | grep -i -E '\.(png|jpe?g|gif|webp|heic|avif|bmp|tiff?|mov|mp4|pem|p12|pfx|key|keystore)$|(^|/)\.env($|\.)|(^|/)id_(rsa|ed25519)|(^|/)credentials' | grep -v -E '\.env\.example$' || true)"
+bad="$(git log --all --name-only --format= | sort -u | grep -i -E '\.(png|jpe?g|gif|webp|heic|avif|bmp|tiff?|mov|mp4|pem|p12|pfx|key|keystore)$|(^|/)\.env($|\.)|(^|/)id_(rsa|ed25519)|(^|/)credentials' | grep -v -E '\.env\.example$' || true)"
 if [ -n "$bad" ]; then
   status=1
   echo "FOUND files (in history):"

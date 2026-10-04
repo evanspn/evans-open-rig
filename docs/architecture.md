@@ -13,7 +13,7 @@
 |---|---|---|
 | orchestrator, builder | `builtin:standard` | project `.claude/settings.json` from `scripts/apply-deny-rules.sh` (they ship with OpenRig) |
 | qa | `builtin:standard` | role `dev`: deny list, rig verbs and read-only git allowed, edits inside the project |
-| pr-watcher | `builtin:locked` | role `watch`: read PRs and CI, merge a finished PR, no edits, no pushes, no `gh api` |
+| pr-watcher | `builtin:locked` | role `watch`: read PRs and CI; merging asks (standard) or is allowed (permissive); no edits, no pushes, no `gh api` |
 | security reviewer | `builtin:locked` | role `review`: read-only, no commits, pushes or merges |
 | oversight monitor | `builtin:locked` | role `monitor`: read rig state and send messages only, no edits, no `gh` |
 
